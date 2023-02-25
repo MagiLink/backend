@@ -1,11 +1,14 @@
 import { Configuration, OpenAIApi } from 'openai';
-const configuration = new Configuration({
-    apiKey: process.env.OPENAI_KEY,
+import dotenv from 'dotenv';
+dotenv.config();
+const OPENAI_KEY = process.env.OPENAI_KEY;
+const config = new Configuration({
+    apiKey: OPENAI_KEY,
 });
 
 export const generateComponentFromPrompt = async (prompt) => {
-    console.log(configuration.apiKey);
-    const openai = new OpenAIApi(configuration);
+    console.log(config.apiKey);
+    const openai = new OpenAIApi(config);
     const response = await openai.createCompletion({
         model: 'code-davinci-002',
         prompt: `/* Javascript language */\n/* Create a React component with tailwind */\n/* ${prompt} */\n/* Create any component that might be needed */\n const OurComponent = (props) => {`,
