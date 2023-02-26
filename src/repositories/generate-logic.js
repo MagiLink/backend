@@ -17,5 +17,15 @@ export const generateComponentFromPrompt = async (prompt) => {
         frequency_penalty: 0.25,
     });
 
-    return response.data.choices[0].text;
+    let returnedCode = response.data.choices[0].text;
+
+    // Remove dots and newlines from the start of the code
+    while (
+        returnedCode.charAt(0) == '.' ||
+        returnedCode.charAt(0) == ',' || 
+        returnedCode.charAt(0) == '\n') {
+        returnedCode = returnedCode.substring(1)
+    }
+
+    return returnedCode;
 };
