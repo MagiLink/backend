@@ -4,8 +4,6 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import cors from 'cors';
 import indexRouter from './routes/index.js';
-import usersRouter from './routes/users.js';
-import promptsRouter from './routes/prompts.js';
 import generateRouter from './routes/generate.js';
 
 const app = express();
@@ -24,8 +22,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/prompts', promptsRouter);
 app.use('/generate', generateRouter);
 
 // catch 404 and forward to error handler
