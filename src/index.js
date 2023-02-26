@@ -2,7 +2,7 @@ import createError from 'http-errors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-
+import cors from 'cors';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import promptsRouter from './routes/prompts.js';
@@ -11,6 +11,8 @@ import generateRouter from './routes/generate.js';
 const app = express();
 
 const port = process.env.PORT || 3333;
+
+app.use(cors());
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
