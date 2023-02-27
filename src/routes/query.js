@@ -1,10 +1,5 @@
 import express from 'express';
-import { Configuration, OpenAIApi } from 'openai';
 import { createClient, SchemaFieldTypes, VectorAlgorithms } from 'redis';
-const OPENAI_KEY = process.env.OPENAI_KEY;
-const configuration = new Configuration({
-    apiKey: OPENAI_KEY,
-});
 
 const REDISHOST = process.env.REDIS_HOST;
 const REDISPASSWORD = process.env.REDIS_PASSWORD;
@@ -18,7 +13,7 @@ const client = createClient({
 });
 
 const EMBEDDING_DIM = 2; // TODO: Ask how to make global constants
-const queryString = '*=>[KNN 4 @v $BLOB AS dist]';
+const queryString = '*=>[KNN 4 @prompt $BLOB AS dist]';
 
 function float32Buffer(arr) {
     return Buffer.from(new Float32Array(arr).buffer);
@@ -56,9 +51,9 @@ async function init() {
 
     // Add example data to test functionality
     await Promise.all([
-        client.hSet('magilink:component:a', { prompt: float32Buffer([0.1, 0.1]) }),
+        client.hSet('magilink:component:a', { prompt: float32Buffer([0.1, 0.2]) }),
         client.hSet('magilink:component:b', { prompt: float32Buffer([0.1, 0.4]) }),
-        client.hSet('magilink:component:c', { prompt: float32Buffer([0.1, 0.6]) }),
+        client.hSet('magilink:component:c', { prompt: float32Buffer([0.1, 0.1]) }),
         client.hSet('magilink:component:d', { prompt: float32Buffer([0.1, 0.8]) }),
     ]);
 }
@@ -79,15 +74,9 @@ router.get('/', async (req, res, next) => {
         RETURN: ['dist'],
     });
 
-    console.log(JSON.stringify(results, null, 2));
-    res.send('OK');
+    console.log(results);
+    res.send(results);
 });
 
-router.post('/', async (req, res, next) => {
-    const prompt = req.body['code'];
-    console.log(prompt);
-
-    res.send('OK');
-});
 
 export default router;
