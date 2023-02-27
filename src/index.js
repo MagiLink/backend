@@ -2,16 +2,17 @@ import createError from 'http-errors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-
+import cors from 'cors';
 import indexRouter from './routes/index.js';
-import usersRouter from './routes/users.js';
-import promptsRouter from './routes/prompts.js';
 import generateRouter from './routes/generate.js';
 import queryRouter from './routes/query.js'
+import searchRouter from './routes/search.js';
 
 const app = express();
 
 const port = process.env.PORT || 3333;
+
+app.use(cors());
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
@@ -23,10 +24,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/prompts', promptsRouter);
 app.use('/generate', generateRouter);
 app.use('/query', queryRouter);
+app.use('/search', searchRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
