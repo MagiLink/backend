@@ -5,6 +5,7 @@ import logger from 'morgan';
 import cors from 'cors';
 import indexRouter from './routes/index.js';
 import generateRouter from './routes/generate.js';
+import searchRouter from './routes/search.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 app.use('/generate', generateRouter);
+app.use('/search', searchRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
