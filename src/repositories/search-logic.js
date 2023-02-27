@@ -33,7 +33,7 @@ function getMockComponents(prompt, topK) {
     const matches = [];
     for (let i = 0; i < topK; i++) {
         const randomIndex = Math.random() * exampleComponents.length;
-        const component = exampleComponents.splice(randomIndex, 1);
+        const component = exampleComponents.splice(randomIndex, 1)[0];
 
         const match = {
             "prompt": "example prompt",
