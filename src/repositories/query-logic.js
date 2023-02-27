@@ -28,7 +28,7 @@ const initiateQueryClient = async () => {
                     type: SchemaFieldTypes.VECTOR,
                     ALGORITHM: VectorAlgorithms.HNSW, // https://www.pinecone.io/learn/hnsw/
                     TYPE: 'FLOAT32',
-                    DIM: EMBEDDING_DIM,
+                    DIM: OPENAI_EMBEDDING_DIM,
                     DISTANCE_METRIC: 'COSINE',
                 },
                 code: SchemaFieldTypes.TEXT,
