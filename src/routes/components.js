@@ -1,5 +1,4 @@
 import express from 'express';
-import { isUndefined } from 'util';
 import { getAllComponents, addComponentToDatabase, getComponentFromHash } from '../repositories/query-logic.js';
 
 const router = express.Router();
