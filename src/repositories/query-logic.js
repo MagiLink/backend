@@ -47,12 +47,16 @@ const initiateQueryClient = async () => {
     }
 }
 
-export const addComponentToDatabase = async (id, embedding, component) => {
+export const addComponentToDatabase = async ({ name, prompt, embedding, component }) => {
+    const hashes = await client.scan(0, {TYPE: 'hash'});
+    const numHashes = hashes.keys.length;
 
     const blob = arrayToFloat32Buffer(embedding);
 
-    client.hSet(`magilink:component:${id}$`, {
+    client.hSet(`magilink:component:${numHashes}$`, {
+        name: name,
         embedding: blob,
+        prompt: prompt,
         component: component,
     });
 }
@@ -71,6 +75,24 @@ export const queryComponentDatabase = async (embedding) => {
     });
 
     return results;
+}
+
+
+export const getComponentFromHash = async (hashKey) => {
+    return { id: hashKey, ...await client.hGetAll(hashKey) };
+}
+
+
+export const getAllComponents = async () => {
+    const hashes = await client.scan(0, {TYPE: 'hash'});
+
+    const results = [];
+    await Promise.all(hashes.keys.map(async (hashKey) => {
+        const value = await getComponentFromHash(hashKey)
+        results.push(value)
+    }));
+
+    return results
 }
 
 // Should we perhaps export the init function and call it externally?
