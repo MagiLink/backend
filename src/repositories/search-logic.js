@@ -35,14 +35,23 @@ function getMockComponents(prompt, topK) {
         const randomIndex = Math.random() * exampleComponents.length;
         const component = exampleComponents.splice(randomIndex, 1)[0];
 
-        const match = {
-            "prompt": "example prompt",
-            "component": component,
-            "score": Math.random()
-        };
-
+        const match = createSearchMatch("example prompt", component, Math.random(), 0, "anon", "...", "mock");
         matches.push(match);
     }
 
     return matches;
+}
+
+function createSearchMatch(prompt, component, score, upvotes, username, name, category) {
+    const match = {
+        "prompt": prompt,
+        "component": component,
+        "score": score,
+        "upvotes": upvotes,
+        "username": username,
+        "name": name,
+        "category": category
+    };
+
+    return match;
 }
