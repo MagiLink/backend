@@ -47,13 +47,29 @@ const initiateQueryClient = async () => {
     }
 }
 
+export const getAllHashesFromDatabase = async () => {
+    // https://redis.io/commands/scan/
+
+    const allHashes = [];
+    let cursor = 0;
+
+    do {
+        const hashes = await client.scan(cursor, {TYPE: 'hash'});
+        allHashes.push(...hashes['keys']);
+        cursor = hashes['cursor'];
+    } while (cursor != 0);
+
+    return allHashes;
+}
+
 export const addComponentToDatabase = async ({ name, prompt, embedding, component }) => {
     // IMPORTANT:
     // Do not call multiple instances of this function at once using Promise.all,
     // since it will assign the same id to each element. 
 
-    const hashes = await client.scan(0, {TYPE: 'hash'});
-    const numHashes = hashes.keys.length;
+    //const hashes = await client.scan(0, {TYPE: 'hash'});
+    const hashes = await getAllHashesFromDatabase();
+    const numHashes = hashes.length;
     const blob = arrayToFloat32Buffer(embedding);
     const id = numHashes;
 
@@ -89,10 +105,10 @@ export const getComponentFromHash = async (hashKey) => {
 
 
 export const getAllComponents = async () => {
-    const hashes = await client.scan(0, {TYPE: 'hash'});
+    const hashes = await getAllHashesFromDatabase();
 
     const results = [];
-    await Promise.all(hashes.keys.map(async (hashKey) => {
+    await Promise.all(hashes.map(async (hashKey) => {
         const value = await getComponentFromHash(hashKey)
         results.push(value)
     }));
