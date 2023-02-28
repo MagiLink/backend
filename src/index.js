@@ -3,15 +3,34 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import cors from 'cors';
-import indexRouter from './routes/index.js';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import path from 'path';
+
 import generateRouter from './routes/generate.js';
-import queryRouter from './routes/query.js'
+import queryRouter from './routes/query.js';
 import searchRouter from './routes/search.js';
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.3',
+        info: {
+            title: 'MagiLink API Documentation',
+            version: '1.0.0',
+            description: 'API Documentation for the MagiLink project',
+        },
+        servers: [{ url: 'http://localhost:3333' }],
+    },
+    apis: ['./src/routes/*.js'],
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
 
 const app = express();
 
 const port = process.env.PORT || 3333;
 
+app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(cors());
 
 app.listen(port, () => {
@@ -23,7 +42,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', indexRouter);
 app.use('/generate', generateRouter);
 app.use('/query', queryRouter);
 app.use('/search', searchRouter);
