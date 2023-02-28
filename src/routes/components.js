@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
 });
 
 
-router.post('/add', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const name = req.body.name;
     const prompt = req.body.prompt;
     const component = req.body.component;
