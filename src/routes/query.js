@@ -3,12 +3,12 @@ import { addComponentToDatabase, queryComponentDatabase } from '../repositories/
 
 const router = express.Router();
 
+// Testing route for redis database.
+// Need to change DIM of redis database to 2 to test
+
 // TODO: Add disconnecting functionality
 
 // https://github.com/redis/node-redis/blob/master/examples/search-knn.js
-addComponentToDatabase('a', [0.02, 0.59], 'hello');
-addComponentToDatabase('b', [0.03, 0.14], 'my');
-addComponentToDatabase('c', [0.6, 0.4], 'name');
 
 /**
  * @swagger
@@ -45,11 +45,15 @@ addComponentToDatabase('c', [0.6, 0.4], 'name');
  *                       score:
  *                         type: number
  */
-
 router.post('/', async (req, res, next) => {
-    console.log('Received request for query');
+    await Promise.all([
+        addComponentToDatabase('a', [0.02, 0.59], 'hello'),
+        addComponentToDatabase('b', [0.03, 0.14], 'my'),
+        addComponentToDatabase('c', [0.6, 0.4], 'name'),
+    ]);
+
     const response = await queryComponentDatabase(req.body['embedding']);
-    console.log('Response from query: ', response);
+    console.log(response);
     res.send(response);
 });
 
