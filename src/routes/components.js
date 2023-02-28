@@ -1,12 +1,5 @@
 import express from 'express';
-import {
-    getAllComponents,
-    addComponentToDatabase,
-    getComponentFromHash,
-    incrementUpvoteFromHash,
-    decrementUpvoteFromHash,
-} from '../repositories/query-logic.js';
-import { getAllComponents, addComponentToDatabase, getComponentFromHash } from '../repositories/query-logic.js';
+import { getAllComponents, addComponentToDatabase, incrementUpvoteFromHash, decrementUpvoteFromHash } from '../repositories/query-logic.js';
 import { embedPrompt } from '../repositories/search-logic.js';
 
 const router = express.Router();
@@ -57,12 +50,12 @@ router.post('/', async (req, res, next) => {
         name: name,
         prompt: prompt,
         embedding: embedding,
-        component: component
+        component: component,
     };
 
     try {
         await addComponentToDatabase(componentRequest);
-        console.log(`Adding prompt '${prompt}'`)
+        console.log(`Adding prompt '${prompt}'`);
         res.status(201);
         res.send('All good!');
     } catch (e) {
