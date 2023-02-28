@@ -1,4 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai';
+import { queryComponentDatabase } from '../repositories/query-logic.js';
+
+
 import dotenv from 'dotenv';
 dotenv.config();
 const OPENAI_KEY = process.env.OPENAI_KEY;
@@ -6,6 +9,7 @@ const config = new Configuration({
     apiKey: OPENAI_KEY,
 });
 
+// TODO: Move to query-logic.js
 export const embedPrompt = async (prompt) => {
     const openai = new OpenAIApi(config);
     const response = await openai.createEmbedding({
@@ -17,14 +21,26 @@ export const embedPrompt = async (prompt) => {
 };
 
 export const getTopComponents = async (prompt, topK) => {
-    // TODO: Implement query logic here.
-    // TODO: integrate with Redis vector similarity search
+    const embedding = await embedPrompt(prompt);
 
-    return getMockComponents(prompt, topK)
-}
+    console.log(`Getting top ${topK} components matching prompt: '${prompt}'...`);
+    const allMatches = await queryComponentDatabase(embedding)
+    console.log("Found the following prompts:");
+    console.log(allMatches);
+
+    if (allMatches['total'] === 0) {
+        console.log("No matches found!");
+        return [];
+    }
+
+    const matches = allMatches['documents'].slice(0, topK);
+    return matches;
+};
 
 
-function getMockComponents(prompt, topK) {
+export const getMockComponents = async (prompt, topK) => {
+    const embedding = embedPrompt(prompt);
+
     const exampleComponents = [];
     for (let i = 0; i < 100; i++) {
         exampleComponents.push(`example code nr {i+1}`);
@@ -40,9 +56,9 @@ function getMockComponents(prompt, topK) {
     }
 
     return matches;
-}
+};
 
-function createSearchMatch(prompt, component, score, upvotes, username, name, category) {
+const createSearchMatch = async (prompt, component, score, upvotes, username, name, category) => {
     const match = {
         "prompt": prompt,
         "component": component,
@@ -54,4 +70,4 @@ function createSearchMatch(prompt, component, score, upvotes, username, name, ca
     };
 
     return match;
-}
+};
