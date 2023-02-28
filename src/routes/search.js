@@ -1,5 +1,5 @@
 import express from 'express';
-import { embedPrompt, getTopComponents } from '../repositories/search-logic.js';
+import { getMockComponents, getTopComponents } from '../repositories/search-logic.js';
 
 const router = express.Router();
 
@@ -58,10 +58,18 @@ router.post('/', async (req, res, next) => {
     const prompt = req.body['prompt'];
     const topK = req.body['top_k'];
 
-    const embedding = await embedPrompt(prompt);
-    const matches = await getTopComponents(embedding, topK);
+    const matches = await getTopComponents(prompt, topK);
 
     res.send({ matches: matches });
 });
+
+router.post('/mock', async (req, res, next) => {
+    const prompt = req.body['prompt'];
+    const topK = req.body['top_k'];
+
+    const matches = await getMockComponents(prompt, topK);
+
+    res.send({ matches: matches });
+})
 
 export default router;

@@ -1,5 +1,6 @@
 import express from 'express';
 import { getAllComponents, addComponentToDatabase, getComponentFromHash } from '../repositories/query-logic.js';
+import { embedPrompt } from '../repositories/search-logic.js';
 
 const router = express.Router();
 
@@ -40,17 +41,22 @@ router.get('/', async (req, res) => {
 });
 
 
-router.post('/', async (req, res, next) => {
-    const component = {
-        name: req.body.name,
-        prompt: req.body.prompt,
-        embedding: [0, 0], // TODO: switch this out for OpenAI
-        component: req.body.component,
+router.post('/add', async (req, res, next) => {
+    const name = req.body.name;
+    const prompt = req.body.prompt;
+    const component = req.body.component;
+    const embedding = await embedPrompt(prompt);
+
+    const componentRequest = {
+        name: name,
+        prompt: prompt,
+        embedding: embedding,
+        component: component
     };
 
     try {
-        await addComponentToDatabase(component);
-        console.log('everything should be good');
+        await addComponentToDatabase(componentRequest);
+        console.log(`Adding prompt '${prompt}'`)
         res.status(201);
         res.send('All good!')
     } catch (e) {
@@ -58,7 +64,6 @@ router.post('/', async (req, res, next) => {
         res.send('Oh no!');
     }
 });
-
 
 
 router.post('/test', async (req, res) => {
