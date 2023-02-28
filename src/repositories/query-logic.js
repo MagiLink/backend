@@ -48,10 +48,14 @@ const initiateQueryClient = async () => {
 }
 
 export const addComponentToDatabase = async ({ name, prompt, embedding, component }) => {
+    // IMPORTANT:
+    // Do not call multiple instances of this function at once using Promise.all,
+    // since it will assign the same id to each element. 
+
     const hashes = await client.scan(0, {TYPE: 'hash'});
     const numHashes = hashes.keys.length;
-
     const blob = arrayToFloat32Buffer(embedding);
+    const id = numHashes;
 
     client.hSet(`magilink:component:${numHashes}$`, {
         name: name,
@@ -59,6 +63,7 @@ export const addComponentToDatabase = async ({ name, prompt, embedding, componen
         prompt: prompt,
         component: component,
     });
+    console.log(`Added component with name: ${name} and id ${id}`);
 }
 
 export const queryComponentDatabase = async (embedding) => {
