@@ -7,7 +7,7 @@ const router = express.Router();
  * @swagger
  * /generate:
  *   post:
- *     summary: Use this to generate a component.
+ *     summary: Use this to generate a component from a prompt.
  *     requestBody:
  *       description: Embedded prompt corresponding to this component.
  *       required: true

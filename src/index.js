@@ -8,8 +8,8 @@ import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 
 import generateRouter from './routes/generate.js';
-import queryRouter from './routes/query.js';
 import searchRouter from './routes/search.js';
+import componentRouter from './routes/components.js'
 
 const swaggerOptions = {
     definition: {
@@ -43,8 +43,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/generate', generateRouter);
-app.use('/query', queryRouter);
 app.use('/search', searchRouter);
+app.use('/components', componentRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
