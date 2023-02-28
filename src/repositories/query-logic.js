@@ -1,4 +1,5 @@
 import { createClient, SchemaFieldTypes, VectorAlgorithms } from 'redis';
+import { OPENAI_EMBEDDING_DIM } from './constants.js';
 
 const REDISHOST = process.env.REDIS_HOST;
 const REDISPASSWORD = process.env.REDIS_PASSWORD;
@@ -10,8 +11,7 @@ const client = createClient({
     url: REDISURL,
 });
 
-const OPENAI_EMBEDDING_DIM = 1536; // TODO: Ask how to make global constants
-const queryString = '*=>[KNN 4 @prompt $BLOB AS dist]';
+const queryString = '*=>[KNN 4 @embedding $BLOB AS dist]';
 
 export const arrayToFloat32Buffer = (arr) => {
     return Buffer.from(new Float32Array(arr).buffer);
@@ -24,14 +24,14 @@ const initiateQueryClient = async () => {
         await client.ft.create(
             'idx:component-db',
             {
-                prompt: {
+                embedding: {
                     type: SchemaFieldTypes.VECTOR,
                     ALGORITHM: VectorAlgorithms.HNSW, // https://www.pinecone.io/learn/hnsw/
                     TYPE: 'FLOAT32',
                     DIM: OPENAI_EMBEDDING_DIM,
                     DISTANCE_METRIC: 'COSINE',
                 },
-                code: SchemaFieldTypes.TEXT,
+                component: SchemaFieldTypes.TEXT,
             },
             {
                 ON: 'HASH',
