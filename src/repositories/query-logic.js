@@ -118,3 +118,11 @@ export const getAllComponents = async () => {
 
 // Should we perhaps export the init function and call it externally?
 await initiateQueryClient();
+
+export const incrementUpvoteFromHash = async (hashKey) => {
+    await client.hIncrBy(hashKey, 'upvotes', 1);
+}
+
+export const decrementUpvoteFromHash = async (hashKey) => {
+    await client.hIncrBy(hashKey, 'upvotes', -1);
+}
