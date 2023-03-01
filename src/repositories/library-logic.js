@@ -164,8 +164,6 @@ export const getTopComponents = async (prompt, topK) => {
 
 
 export const getMockComponents = async (prompt, topK) => {
-    const embedding = embedPrompt(prompt);
-
     const exampleComponents = [];
     for (let i = 0; i < 100; i++) {
         exampleComponents.push(`example code nr {i+1}`);
