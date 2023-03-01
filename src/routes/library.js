@@ -1,12 +1,19 @@
 import express from 'express';
-import { getAllComponents, addComponentToDatabase, incrementUpvoteFromHash, decrementUpvoteFromHash } from '../repositories/query-logic.js';
-import { embedPrompt } from '../repositories/search-logic.js';
+import {
+    getAllComponents,
+    addComponentToDatabase,
+    incrementUpvoteFromHash,
+    decrementUpvoteFromHash,
+    embedPrompt,
+    getMockComponents,
+    getTopComponents,
+ } from '../repositories/library-logic.js';
 
 const router = express.Router();
 
 /**
  * @swagger
- * /components:
+ * /library:
  *   get:
  *     summary: Use this to get all of the components saved in the DB.
  *   post:
@@ -30,7 +37,7 @@ const router = express.Router();
  *         description: "All good!"
  *       '500':
  *         description: Something went wrong with creating the object in the DB
- * /components/test:
+ * /library/test:
  *   post:
  *     summary: Use this to add some test data to the DB
  */
@@ -45,12 +52,14 @@ router.post('/', async (req, res, next) => {
     const prompt = req.body.prompt;
     const component = req.body.component;
     const embedding = await embedPrompt(prompt);
+    const category = req.body.category
 
     const componentRequest = {
         name: name,
         prompt: prompt,
         embedding: embedding,
         component: component,
+        category: category,
     };
 
     try {
@@ -66,7 +75,7 @@ router.post('/', async (req, res, next) => {
 
 /**
  * @swagger
- * /components/{id}/upvote:
+ * /library/{id}/upvote:
  *   post:
  *     summary: Use this to upvote a component.
  *     responses:
@@ -101,7 +110,7 @@ router.post(':id/upvote', async (req, res, next) => {
 
 /**
  * @swagger
- * /components/{id}/downvote:
+ * /library/{id}/downvote:
  *   post:
  *     summary: Use this to downvote a component.
  *     responses:
@@ -135,10 +144,81 @@ router.post(':id/downvote', async (req, res, next) => {
 });
 
 router.post('/test', async (req, res) => {
-    await addComponentToDatabase({ name: 'a', prompt: 'foo foo a', embedding: [0.02, 0.59], component: 'hello' }),
-        await addComponentToDatabase({ name: 'b', prompt: 'bar bar b', embedding: [0.03, 0.14], component: 'my' }),
-        await addComponentToDatabase({ name: 'c', prompt: 'baz baz c', embedding: [0.6, 0.4], component: 'name' }),
+    await addComponentToDatabase({ name: 'a', prompt: 'foo foo a', embedding: [0.02, 0.59], component: 'hello', category: 'foo' }),
+        await addComponentToDatabase({ name: 'b', prompt: 'bar bar b', embedding: [0.03, 0.14], component: 'my', category: 'foo' }),
+        await addComponentToDatabase({ name: 'c', prompt: 'baz baz c', embedding: [0.6, 0.4], component: 'name', category: 'foo' }),
         res.send('OK!');
 });
+
+
+
+/**
+ * @swagger
+ * /library/search:
+ *   post:
+ *     summary: Use this to search for components.
+ *     requestBody:
+ *       description: Embedded prompt corresponding to this component.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               prompt:
+ *                 type: string
+ *               top_k:
+ *                 type: number
+ *     responses:
+ *       '200':
+ *         description: A list of component-score pairs, sorted by score.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 matches:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       embedding:
+ *                         type: array
+ *                         items:
+ *                           type: number
+ *                       component:
+ *                         type: string
+ *                       score:
+ *                         type: number
+ */
+
+router.post('/search', async (req, res, next) => {
+    /*
+     *  Expects JSON packet with following:
+     *      "prompt": Raw string representing a search.
+     *      "top_k": Expected number of returned component-score pairs, sorted by score.
+     *
+     *  Returns a sorted list of JSON packets containing:
+     *      "embedding": Embedded prompt corresponding to this compoment.
+     *      "component": Text string containing JavaScript code matching the prompt.
+     *      "score": Number representing how closely this prompt matches the given one.
+     */
+
+    const prompt = req.body['prompt'];
+    const topK = req.body['top_k'];
+
+    const matches = await getTopComponents(prompt, topK);
+
+    res.send({ matches: matches });
+});
+
+router.post('/search/mock', async (req, res, next) => {
+    const prompt = req.body['prompt'];
+    const topK = req.body['top_k'];
+
+    const matches = await getMockComponents(prompt, topK);
+
+    res.send({ matches: matches });
+})
 
 export default router;
