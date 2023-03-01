@@ -1,6 +1,11 @@
 import express from 'express';
-import { getAllComponents, addComponentToDatabase, incrementUpvoteFromHash, decrementUpvoteFromHash } from '../repositories/query-logic.js';
-import { embedPrompt } from '../repositories/search-logic.js';
+import {
+    getAllComponents,
+    addComponentToDatabase,
+    incrementUpvoteFromHash,
+    decrementUpvoteFromHash,
+    embedPrompt,
+ } from '../repositories/library-logic.js';
 
 const router = express.Router();
 

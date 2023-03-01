@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMockComponents, getTopComponents } from '../repositories/search-logic.js';
+import { getMockComponents, getTopComponents } from '../repositories/library-logic.js';
 
 const router = express.Router();
 

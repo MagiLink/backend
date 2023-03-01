@@ -5,11 +5,11 @@ import logger from 'morgan';
 import cors from 'cors';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import path from 'path';
 
 import generateRouter from './routes/generate.js';
 import searchRouter from './routes/search.js';
 import componentRouter from './routes/components.js'
+import { initiateQueryClient } from './repositories/library-logic.js';
 
 const swaggerOptions = {
     definition: {
@@ -25,10 +25,11 @@ const swaggerOptions = {
 };
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
-
 const app = express();
-
 const port = process.env.PORT || 3333;
+
+// Initialize redis index for searching
+await initiateQueryClient();
 
 app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(cors());
