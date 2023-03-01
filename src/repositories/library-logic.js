@@ -85,6 +85,7 @@ export const addComponentToDatabase = async ({ name, prompt, embedding, componen
         prompt: prompt,
         component: component,
         category: category,
+        upvotes: 0,
     });
     console.log(`Added component with name: ${name} and id ${id}`);
 }
@@ -129,6 +130,11 @@ export const embedPrompt = async (prompt) => {
 };
 
 
+const distToScore = (dist) => {
+    const tempScore = (1 - dist/0.3);
+    return tempScore < 0 ? 0 : tempScore;
+}
+
 const queryComponentDatabase = async (embedding) => {
     const blob = arrayToFloat32Buffer(embedding);
     const queryString = '*=>[KNN 4 @embedding $BLOB AS dist]'
@@ -139,10 +145,28 @@ const queryComponentDatabase = async (embedding) => {
         },
         SORTBY: 'dist',
         DIALECT: 2,
-        RETURN: ['dist'],
+        RETURN: ['dist', 'name', 'prompt', 'category', 'upvotes', 'component'],
     });
 
-    return results;
+
+    if (results['total'] === 0) {
+        return [];
+    }
+
+    const processed = results['documents'].map((item) => {
+        return {
+            id: item.id,
+            name: item.value.name,
+            score: distToScore(parseFloat(item.value.dist)),
+            prompt: item.value.prompt,
+            category: item.value.category,
+            upvotes: parseInt(item.value.upvotes, 10) || 0,
+            component: item.value.component,
+            username: 'anon',
+        }
+    });
+
+    return processed;
 }
 
 
@@ -154,12 +178,12 @@ export const getTopComponents = async (prompt, topK) => {
     console.log("Found the following prompts:");
     console.log(allMatches);
 
-    if (allMatches['total'] === 0) {
+    if (allMatches.length === 0) {
         console.log("No matches found!");
         return [];
     }
 
-    const matches = allMatches['documents'].slice(0, topK);
+    const matches = allMatches.slice(0, topK);
     return matches;
 };
 
