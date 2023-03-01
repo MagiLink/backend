@@ -69,7 +69,7 @@ const getAllHashesFromDatabase = async () => {
 }
 
 
-export const addComponentToDatabase = async ({ name, prompt, embedding, component }) => {
+export const addComponentToDatabase = async ({ name, prompt, embedding, component, category }) => {
     // IMPORTANT:
     // Do not call multiple instances of this function at once using Promise.all,
     // since it will assign the same id to each element. 
@@ -84,6 +84,7 @@ export const addComponentToDatabase = async ({ name, prompt, embedding, componen
         embedding: blob,
         prompt: prompt,
         component: component,
+        category: category,
     });
     console.log(`Added component with name: ${name} and id ${id}`);
 }
