@@ -13,7 +13,7 @@ export const generateComponentFromPrompt = async (prompt) => {
         messages: [
             {
                 role: 'user',
-                content: `ONLY RESPOND WITH CODE, IGNORE ANY IMPORTS AND EXPORTS AND START THE CODE WITH  \`() => {\`: Create a React component styled with the style prop using the following prompt: \`${prompt}\` Make the generated component as an anonymous arrow function that doesn't have a name so it is instantly invoked and also when using React specific functions, append 'React.' to the front.`,
+                content: `ONLY RESPOND WITH CODE, IGNORE ANY IMPORTS AND EXPORTS AND START THE CODE WITH  \`() => {\`: Create a React component styled with the style prop using the following prompt: \`${prompt}\` Make the generated component as an anonymous arrow function that doesn't have a name so it is instantly invoked and also when using React specific functions, append 'React.' to the front. IMPLEMENT ALL FUNCTIONS, NO EMPTY FUNCTIONS.`,
             },
         ],
         temperature: 0,
