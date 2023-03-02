@@ -69,25 +69,40 @@ const getAllHashesFromDatabase = async () => {
 }
 
 
+const simpleHashing = (str) => {
+    let hash = 0;
+    for (let i = 0, len = str.length; i < len; i++) {
+        let chr = str.charCodeAt(i);
+        hash = (hash << 5) - hash + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+
 export const addComponentToDatabase = async ({ name, prompt, embedding, component, category }) => {
     // IMPORTANT:
     // Do not call multiple instances of this function at once using Promise.all,
     // since it will assign the same id to each element. 
 
-    const hashes = await getAllHashesFromDatabase();
-    const numHashes = hashes.length;
     const blob = arrayToFloat32Buffer(embedding);
-    const id = numHashes;
+    const id = simpleHashing(prompt + ' ' + component)
 
-    client.hSet(`magilink:component:${numHashes}$`, {
-        name: name,
-        embedding: blob,
-        prompt: prompt,
-        component: component,
-        category: category,
-        upvotes: 0,
-    });
-    console.log(`Added component with name: ${name} and id ${id}`);
+    const compInDB = await getComponentFromHash(`magilink:component:${id}$`);
+
+    if (compInDB['name'] === undefined) {
+        client.hSet(`magilink:component:${id}$`, {
+            name: name,
+            embedding: blob,
+            prompt: prompt,
+            component: component,
+            category: category,
+            upvotes: 0,
+        });
+        console.log(`Added component with name: ${name} and id ${id}`);
+    } else {
+        console.log('Component already in DB');
+    }
 }
 
 
