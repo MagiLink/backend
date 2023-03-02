@@ -111,6 +111,11 @@ const getComponentFromHash = async (hashKey) => {
 }
 
 
+export const deleteComponentWithHash = async (hashKey) => {
+    client.del(hashKey);
+}
+
+
 export const getAllComponents = async () => {
     const hashes = await getAllHashesFromDatabase();
 
