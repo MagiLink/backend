@@ -7,6 +7,7 @@ import {
     embedPrompt,
     getMockComponents,
     getTopComponents,
+    deleteComponentWithHash,
  } from '../repositories/library-logic.js';
 
 const router = express.Router();
@@ -37,6 +38,9 @@ const router = express.Router();
  *         description: "All good!"
  *       '500':
  *         description: Something went wrong with creating the object in the DB
+ * /library/:id:
+ *   delete:
+ *     summary: Delete component with id
  * /library/test:
  *   post:
  *     summary: Use this to add some test data to the DB
@@ -70,6 +74,18 @@ router.post('/', async (req, res, next) => {
     } catch (e) {
         res.status(500);
         res.send('Oh no!');
+    }
+});
+
+router.delete('/:id', async (req, res) => {
+    const hashId = req.params.id;
+    try {
+        await deleteComponentWithHash(hashId);
+        res.send('Component deleted!')
+    } catch (e) {
+        res.status(500);
+        console.log(e);
+        res.send('Oh no!')
     }
 });
 
