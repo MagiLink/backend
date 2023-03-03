@@ -33,9 +33,13 @@ const router = express.Router();
  */
 
 router.post('/', async (req, res, next) => {
-    const generated_code = await generateComponentFromPrompt(req.body.prompt);
-    const result = { prompt: req.body.prompt, component: generated_code };
-    res.send(result);
+    try {
+        const generated_code = await generateComponentFromPrompt(req.body.prompt);
+        const result = { prompt: req.body.prompt, component: generated_code };
+        res.send(result);
+    } catch (e) {
+        next(e);
+    }
 });
 
 export default router;

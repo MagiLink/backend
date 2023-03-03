@@ -46,46 +46,42 @@ const router = express.Router();
  *     summary: Use this to add some test data to the DB
  */
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
     const components = await getAllComponents();
     res.send(components);
 });
 
 router.post('/', async (req, res, next) => {
-    const name = req.body.name;
-    const prompt = req.body.prompt;
-    const component = req.body.component;
-    const embedding = await embedPrompt(prompt);
-    const category = req.body.category
-
-    const componentRequest = {
-        name: name,
-        prompt: prompt,
-        embedding: embedding,
-        component: component,
-        category: category,
-    };
-
     try {
+        const name = req.body.name;
+        const prompt = req.body.prompt;
+        const component = req.body.component;
+        const embedding = await embedPrompt(prompt);
+        const category = req.body.category
+
+        const componentRequest = {
+            name: name,
+            prompt: prompt,
+            embedding: embedding,
+            component: component,
+            category: category,
+        };
         await addComponentToDatabase(componentRequest);
         console.log(`Adding prompt '${prompt}'`);
         res.status(201);
         res.send('All good!');
     } catch (e) {
-        res.status(500);
-        res.send('Oh no!');
+        next(e);
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
     const hashId = req.params.id;
     try {
         await deleteComponentWithHash(hashId);
         res.send('Component deleted!')
     } catch (e) {
-        res.status(500);
-        console.log(e);
-        res.send('Oh no!')
+        next(e);
     }
 });
 
@@ -119,8 +115,7 @@ router.post(':id/upvote', async (req, res, next) => {
         res.status(200);
         res.send(`component: ${hashId} down voted`);
     } catch (e) {
-        res.status(500);
-        res.send('error: something went wrong');
+        next(e)
     }
 });
 
@@ -154,16 +149,19 @@ router.post(':id/downvote', async (req, res, next) => {
         res.status(200);
         res.send(`component: ${hashId} down voted`);
     } catch (e) {
-        res.status(500);
-        res.send('error: something went wrong');
+        next(e);
     }
 });
 
-router.post('/test', async (req, res) => {
-    await addComponentToDatabase({ name: 'a', prompt: 'foo foo a', embedding: [0.02, 0.59], component: 'hello', category: 'foo' }),
+router.post('/test', async (req, res, next) => {
+    try {
+        await addComponentToDatabase({ name: 'a', prompt: 'foo foo a', embedding: [0.02, 0.59], component: 'hello', category: 'foo' }),
         await addComponentToDatabase({ name: 'b', prompt: 'bar bar b', embedding: [0.03, 0.14], component: 'my', category: 'foo' }),
         await addComponentToDatabase({ name: 'c', prompt: 'baz baz c', embedding: [0.6, 0.4], component: 'name', category: 'foo' }),
         res.send('OK!');
+    } catch (e) {
+        next(e);
+    }
 });
 
 
@@ -223,18 +221,24 @@ router.post('/search', async (req, res, next) => {
     const prompt = req.body['prompt'];
     const topK = req.body['top_k'];
 
-    const matches = await getTopComponents(prompt, topK);
-
-    res.send({ matches: matches });
+    try {
+        const matches = await getTopComponents(prompt, topK);
+        res.send({ matches: matches });
+    } catch (e) {
+        next(e);
+    }
 });
 
 router.post('/search/mock', async (req, res, next) => {
     const prompt = req.body['prompt'];
     const topK = req.body['top_k'];
 
-    const matches = await getMockComponents(prompt, topK);
-
-    res.send({ matches: matches });
+    try {
+        const matches = await getMockComponents(prompt, topK);
+        res.send({ matches: matches });
+    } catch (e) {
+        next(e);
+    }
 })
 
 export default router;
