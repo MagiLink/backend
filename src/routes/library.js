@@ -1,4 +1,5 @@
 import express from 'express';
+import createError from 'http-errors';
 import {
     getAllComponents,
     addComponentToDatabase,
@@ -8,7 +9,7 @@ import {
     getMockComponents,
     getTopComponents,
     deleteComponentWithHash,
- } from '../repositories/library-logic.js';
+} from '../repositories/library-logic.js';
 
 const router = express.Router();
 
@@ -57,7 +58,7 @@ router.post('/', async (req, res, next) => {
         const prompt = req.body.prompt;
         const component = req.body.component;
         const embedding = await embedPrompt(prompt);
-        const category = req.body.category
+        const category = req.body.category;
 
         const componentRequest = {
             name: name,
@@ -71,7 +72,7 @@ router.post('/', async (req, res, next) => {
         res.status(201);
         res.send('All good!');
     } catch (e) {
-        next(e);
+        next(createError(e));
     }
 });
 
@@ -79,9 +80,9 @@ router.delete('/:id', async (req, res, next) => {
     const hashId = req.params.id;
     try {
         await deleteComponentWithHash(hashId);
-        res.send('Component deleted!')
+        res.send('Component deleted!');
     } catch (e) {
-        next(e);
+        next(createError(e));
     }
 });
 
@@ -115,7 +116,7 @@ router.post(':id/upvote', async (req, res, next) => {
         res.status(200);
         res.send(`component: ${hashId} down voted`);
     } catch (e) {
-        next(e)
+        next(createError(e));
     }
 });
 
@@ -149,22 +150,20 @@ router.post(':id/downvote', async (req, res, next) => {
         res.status(200);
         res.send(`component: ${hashId} down voted`);
     } catch (e) {
-        next(e);
+        next(createError(e));
     }
 });
 
 router.post('/test', async (req, res, next) => {
     try {
         await addComponentToDatabase({ name: 'a', prompt: 'foo foo a', embedding: [0.02, 0.59], component: 'hello', category: 'foo' }),
-        await addComponentToDatabase({ name: 'b', prompt: 'bar bar b', embedding: [0.03, 0.14], component: 'my', category: 'foo' }),
-        await addComponentToDatabase({ name: 'c', prompt: 'baz baz c', embedding: [0.6, 0.4], component: 'name', category: 'foo' }),
-        res.send('OK!');
+            await addComponentToDatabase({ name: 'b', prompt: 'bar bar b', embedding: [0.03, 0.14], component: 'my', category: 'foo' }),
+            await addComponentToDatabase({ name: 'c', prompt: 'baz baz c', embedding: [0.6, 0.4], component: 'name', category: 'foo' }),
+            res.send('OK!');
     } catch (e) {
-        next(e);
+        next(createError(e));
     }
 });
-
-
 
 /**
  * @swagger
@@ -225,7 +224,7 @@ router.post('/search', async (req, res, next) => {
         const matches = await getTopComponents(prompt, topK);
         res.send({ matches: matches });
     } catch (e) {
-        next(e);
+        next(createError(400));
     }
 });
 
@@ -237,8 +236,8 @@ router.post('/search/mock', async (req, res, next) => {
         const matches = await getMockComponents(prompt, topK);
         res.send({ matches: matches });
     } catch (e) {
-        next(e);
+        next(createError(e));
     }
-})
+});
 
 export default router;

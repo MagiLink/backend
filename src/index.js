@@ -7,7 +7,7 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 import generateRouter from './routes/generate.js';
-import libraryRouter from './routes/library.js'
+import libraryRouter from './routes/library.js';
 import { initiateQueryClient } from './repositories/library-logic.js';
 
 const swaggerOptions = {
@@ -60,7 +60,6 @@ app.use((err, req, res, next) => {
 
     // render the error page
     res.status(err.status || 500);
-    res.render('error');
 });
 
 export default app;
